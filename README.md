@@ -1,6 +1,6 @@
-# CursorRestrict
+# Cursor Restrict (a tiny app)
 ## 🚀 Introduction
-A program to restrict your cursor from moving out of the game window.(originally made for [Morbid: The Seven Acolytes](https://store.steampowered.com/app/1140890/Morbid_The_Seven_Acolytes/))  
+A tiny program(size: 5KB) to restrict your cursor from moving out of the game window.(originally made for [Morbid: The Seven Acolytes](https://store.steampowered.com/app/1140890/Morbid_The_Seven_Acolytes/))  
 This program will run in the background silently.  
 Press Alt+F11 to exit or Alt+F12 to toggle the restriction on the current focused window.
 ## 🌟Tutorial:
@@ -11,6 +11,6 @@ Press Alt+F11 to exit or Alt+F12 to toggle the restriction on the current focuse
 If you have any feedback or issues, please feel free to open an issue on this repository.
 
 ## 📜 License
-Captcha-Solver-Extension is licensed under the MIT License.
+Cursor Restrict is licensed under the MIT License.
 
 Made with 💜 by [spacemiqote](https://github.com/spacemiqote).
