@@ -1,6 +1,6 @@
 # CursorRestrict
 ## 🚀 Introduction
-A program to restrict your cursor from moving out of the game window.  
+A program to restrict your cursor from moving out of the game window.(originally made for [Morbid: The Seven Acolytes](https://store.steampowered.com/app/1140890/Morbid_The_Seven_Acolytes/))  
 This program will run in the background silently.  
 Press Alt+F11 to exit or Alt+F12 to toggle the restriction on the current focused window.
 ## 🌟Tutorial:
