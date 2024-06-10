@@ -1,6 +1,6 @@
 #define VERSION_YEAR        2024
-#define VERSION_MONTH       04
-#define VERSION_DAY         05
+#define VERSION_MONTH       06
+#define VERSION_DAY         10
 #define VERSION_UNSAFE      0
 
 #define VER_COPYRIGHT_STR       "Open Source Software"
