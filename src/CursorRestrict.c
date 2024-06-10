@@ -1,91 +1,114 @@
 #include <Windows.h>
 #include <stdbool.h>
 #include <stdio.h>
-// Author: https://github.com/spacemiqote
+//Author:https://github.com/spacemiqote
 
-HHOOK keyboardHook;
 RECT cursorBounds;
 bool boundsEnabled = false;
-
-void SetCursorBounds(int left, int top, int right, int bottom);
+void SetCursorBounds(int,int,int,int);
 void ReleaseCursorBounds(void);
-void SetCursorBoundsToWindow(HWND hwnd);
+void SetCursorBoundsToWindow(HWND);
 void ToggleCursorBounds(void);
 void ExitApplication(void);
-LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam);
-void InstallKeyboardHook(void);
-void UninstallKeyboardHook(void);
-void c(void);
+void c(HINSTANCE hInstance);
 
 void SetCursorBounds(int left, int top, int right, int bottom) {
-    cursorBounds.left = left;
-    cursorBounds.top = top;
-    cursorBounds.right = right;
-    cursorBounds.bottom = bottom;
-    ClipCursor(&cursorBounds);
+	cursorBounds.left = left;
+	cursorBounds.top = top;
+	cursorBounds.right = right;
+	cursorBounds.bottom = bottom;
+	ClipCursor(&cursorBounds);
 }
 
 void ReleaseCursorBounds() {
-    ClipCursor(NULL);
-    boundsEnabled = false;
+	ClipCursor(NULL);
+	boundsEnabled = false;
 }
 
 void SetCursorBoundsToWindow(HWND hwnd) {
-    RECT clientRect;
-    GetClientRect(hwnd, &clientRect);
-    MapWindowPoints(hwnd, NULL, (LPPOINT)&clientRect, 2);
-    SetCursorBounds(clientRect.left, clientRect.top, clientRect.right, clientRect.bottom);
-    boundsEnabled = true;
+	RECT clientRect;
+	GetClientRect(hwnd, &clientRect);
+	MapWindowPoints(hwnd, NULL, (LPPOINT)&clientRect, 2);
+	SetCursorBounds(clientRect.left, clientRect.top, clientRect.right, clientRect.bottom);
+	boundsEnabled = true;
 }
 
-void UninstallKeyboardHook() {
-    if (keyboardHook != NULL) {
-        UnhookWindowsHookEx(keyboardHook);
-        keyboardHook = NULL;
-    }
-}
-
-void ToggleCursorBounds() {
-    if (boundsEnabled) {
-        ReleaseCursorBounds();
-    } else {
-        HWND foregroundWindow = GetForegroundWindow();
-        if (foregroundWindow != NULL) {
-            SetCursorBoundsToWindow(foregroundWindow);
-        }
-    }
+void ToggleCursorBounds(){
+	if (boundsEnabled){
+		ReleaseCursorBounds();
+	}else{
+		HWND foregroundWindow=GetForegroundWindow();
+		if(foregroundWindow!=NULL)SetCursorBoundsToWindow(foregroundWindow);
+	}
 }
 
 void ExitApplication() {
-    ReleaseCursorBounds();
-    UninstallKeyboardHook();
-    PostQuitMessage(0);
+	ReleaseCursorBounds();
+	PostQuitMessage(0);
 }
 
-LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
-    if (nCode == HC_ACTION && (wParam == WM_KEYDOWN || wParam == WM_SYSKEYDOWN)) {
-        KBDLLHOOKSTRUCT* pKeyboard = (KBDLLHOOKSTRUCT*)lParam;
-        if (pKeyboard->vkCode == VK_F12 && (GetAsyncKeyState(VK_MENU) & 0x8000)) {
-            ToggleCursorBounds();
-        } else if (pKeyboard->vkCode == VK_F11 && (GetAsyncKeyState(VK_MENU) & 0x8000)) {
-            ExitApplication();
-        }
-    }
-    return CallNextHookEx(keyboardHook, nCode, wParam, lParam);
+LRESULT CALLBACK WindowProc(HWND hwnd,UINT uMsg,WPARAM wParam,LPARAM lParam){
+	if (uMsg==WM_INPUT){
+		UINT dwSize=0;
+		GetRawInputData((HRAWINPUT)lParam,RID_INPUT,NULL,&dwSize,sizeof(RAWINPUTHEADER));
+		LPBYTE lpb=(LPBYTE)HeapAlloc(GetProcessHeap(),0,dwSize);
+		if(lpb==NULL)return 0;
+		if(GetRawInputData((HRAWINPUT)lParam,RID_INPUT,lpb,
+		&dwSize,sizeof(RAWINPUTHEADER))!=dwSize){
+			HeapFree(GetProcessHeap(),0,lpb);
+			return 0;
+		}
+		RAWINPUT raw;
+		CopyMemory(&raw,lpb,sizeof(RAWINPUT));
+		HeapFree(GetProcessHeap(),0,lpb);
+		if(raw.header.dwType==RIM_TYPEKEYBOARD){
+			RAWKEYBOARD rawKeyboard=raw.data.keyboard;
+			USHORT vkCode=rawKeyboard.VKey;
+			if(rawKeyboard.Message==WM_KEYDOWN){
+				if(GetAsyncKeyState(VK_SHIFT)<0){
+					if(vkCode==VK_F11)ToggleCursorBounds();
+					else if(vkCode==VK_F12)ExitApplication();
+				}
+			}
+		}
+	}
+	return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
 
-void InstallKeyboardHook() {
-    keyboardHook = SetWindowsHookEx(WH_KEYBOARD_LL, LowLevelKeyboardProc, NULL, 0);
+void InstallRawInputHook(HWND hwnd){
+	RAWINPUTDEVICE rid[1];
+	rid[0].usUsagePage=1;
+	rid[0].usUsage=6;
+	rid[0].dwFlags=RIDEV_INPUTSINK;
+	rid[0].hwndTarget=hwnd;
+	if(!RegisterRawInputDevices(rid, 1, sizeof(rid[0])))return;
 }
 
-void c() {
-    InstallKeyboardHook();
+HWND CreateMessageOnlyWindow(HINSTANCE hInstance) {
+	WNDCLASS wc={0};
+	wc.lpfnWndProc=WindowProc;
+	wc.hInstance=hInstance;
+	wc.lpszClassName="CursorRestrict";
+	if(!RegisterClass(&wc))return NULL;
+	HWND hwnd = CreateWindowEx(
+		0,
+		"CursorRestrict",
+		NULL,
+		0,
+		0,0,0,0,
+		HWND_MESSAGE, NULL, hInstance, NULL
+	);
+	if(!hwnd)return 0;
+	return hwnd;
+}
 
-    MSG msg;
-    while (GetMessage(&msg, NULL, 0, 0)) {
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
-    }
-
-    UninstallKeyboardHook();
+void c(HINSTANCE hInstance){
+	HWND hwnd=CreateMessageOnlyWindow(hInstance);
+	if(!hwnd)return;
+	InstallRawInputHook(hwnd);
+	MSG msg;
+	while (GetMessage(&msg, NULL, 0, 0)) {
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
+	}
 }

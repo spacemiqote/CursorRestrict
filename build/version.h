@@ -4,9 +4,9 @@
 #define VERSION_UNSAFE      0
 
 #define VER_COPYRIGHT_STR       "Open Source Software"
-#define VER_FILEDESCRIPTION_STR "A program to restrict your cursor from moving out of the game window.(Alt+F12 toggle Restrict,Alt+f11 exit)"
-#define VER_INTERNALNAME_STR    "Cursor Restrict Software"
-#define VER_PRODUCTNAME_STR    "Cursor Controller Software"
+#define VER_FILEDESCRIPTION_STR "A program to restrict your cursor from moving out of the game window.(Shift+F11 toggle,Shift+F12 exit)"
+#define VER_INTERNALNAME_STR    "Open Source Software"
+#define VER_PRODUCTNAME_STR    "Open Source Software"
 #define VER_LEGALCOPYRIGHT_STR  "Open Source Software"
 #define VER_LEGALTRADEMARKS1_STR    ""
 #define VER_LEGALTRADEMARKS2_STR    ""
