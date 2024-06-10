@@ -1,7 +1,7 @@
 @echo off
 setlocal enabledelayedexpansion
 
-REM This script builds the C/C++ project using the GCC compiler.
+REM This script builds the C/C++ project using the TDM-GCC compiler.
 
 REM Store the original code page
 for /f "tokens=2 delims=:." %%i in ('chcp') do set "ORIGINAL_CODEPAGE=%%i"
