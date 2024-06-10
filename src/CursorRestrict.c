@@ -1,7 +1,7 @@
 #include <Windows.h>
 #include <stdbool.h>
 #include <stdio.h>
-//Author:https://github.com/spacemiqote
+//Author:spacemiqote
 
 RECT cursorBounds;
 bool boundsEnabled = false;
