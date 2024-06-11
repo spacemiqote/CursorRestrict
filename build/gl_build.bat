@@ -49,4 +49,6 @@ pause
 REM Restore the code page
 chcp %ORIGINAL_CODEPAGE% >nul
 
+endlocal
+
 exit /b 0
